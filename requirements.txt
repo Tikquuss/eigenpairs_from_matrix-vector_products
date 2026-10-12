@@ -1,0 +1,4 @@
+# Versions used for the published figures: numpy 1.26.4, matplotlib 3.9.4, torch 2.8.0 (CPU).
+numpy>=1.24
+matplotlib>=3.7
+torch>=2.0  # only for the network Hessian figures; the CPU build is enough

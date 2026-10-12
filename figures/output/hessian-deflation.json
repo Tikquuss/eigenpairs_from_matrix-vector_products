@@ -1,0 +1,64 @@
+{
+  "parameters": 369,
+  "train_loss": 0.000938039,
+  "top_eigenvalues": [
+    5.86519,
+    5.27873,
+    4.20043,
+    3.11937,
+    2.7909,
+    0.30822,
+    0.277013,
+    0.232232
+  ],
+  "negative_eigenvalues": 147,
+  "min_eigenvalue": -0.00223573,
+  "norm": 5.86519,
+  "relative_completed": 6,
+  "relative_stalls_by_stage": {
+    "2": 7,
+    "4": 5,
+    "7": 2
+  },
+  "constant_completed": 20,
+  "constant_median_cumulative_products": [
+    196.0,
+    296.0,
+    368.0,
+    554.0,
+    567.0,
+    726.0,
+    840.0,
+    1013.0
+  ],
+  "example_stage_costs": [
+    218,
+    78,
+    74,
+    188,
+    14,
+    150,
+    102,
+    184
+  ],
+  "example_eigenvalue_errors": [
+    8.88178e-16,
+    1.77636e-15,
+    5.32907e-15,
+    1.77636e-15,
+    8.88178e-16,
+    1.11022e-16,
+    3.33067e-16,
+    1.38778e-16
+  ],
+  "stalled_stage": 2,
+  "stalled_eigenvalue": 5.27873,
+  "stalled_tolerance": 6.27873e-10,
+  "stalled_min_residual": 6.48377e-10,
+  "stalled_final_inherited": 6.48377e-10,
+  "stalled_min_deflated": 4.89243e-16,
+  "stalled_products": 6000,
+  "stalled_previous_residuals": [
+    6.48378e-10
+  ]
+}
