@@ -1,0 +1,9 @@
+{
+  "edges": 148,
+  "within_edges": 128,
+  "across_edges": 20,
+  "zero_multiplicity": 10,
+  "rank_of_B": 20,
+  "max_pair_asymmetry": 5.32907e-15,
+  "max_mismatch_with_plus_minus_singular_values": 6.21725e-15
+}

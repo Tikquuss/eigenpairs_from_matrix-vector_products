@@ -3,8 +3,10 @@
 A fully connected tanh network 4-16-16-1 (369 parameters) is trained by
 full-batch gradient descent on n = 256 inputs labelled by a random teacher
 network, and its Hessian at the final point is applied by automatic
-differentiation (Section 2.1). Algorithm 1 computes the 8 eigenpairs of
-largest absolute value with two choices of tolerances:
+differentiation (Section 2.1). Panel (a) shows the training and test losses
+along gradient descent; the test loss uses 1,024 fresh inputs labelled by the
+same teacher. Algorithm 1 computes the 8 eigenpairs of largest absolute value
+with two choices of tolerances:
 
 * relative: eps_abs = eps_rel = 1e-10, so that stage j accepts when
   ||A q - lam q|| <= 1e-10 (1 + ||A q||);
@@ -14,6 +16,7 @@ largest absolute value with two choices of tolerances:
 
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 from mvp import deflated_eigenpairs
 from mvp.hessian import teacher_student_problem
@@ -28,11 +31,11 @@ N_STARTS = 20
 MAX_STEPS = 3000
 
 
-def problem():
+def problem(return_trajectory: bool = False):
     loss, trajectory = teacher_student_problem(WIDTHS, n=N, steps=STEPS, learning_rate=LEARNING_RATE,
                                                seed=SEED, teacher_widths=TEACHER)
     theta = trajectory[-1]
-    return loss, theta
+    return (loss, theta, trajectory) if return_trajectory else (loss, theta)
 
 
 def runs(apply_h, dimension, options, seed_offset):
@@ -42,7 +45,10 @@ def runs(apply_h, dimension, options, seed_offset):
 
 
 def make(out_dir, preview=None) -> dict:
-    loss, theta = problem()
+    loss, theta, trajectory = problem(return_trajectory=True)
+    with torch.no_grad():
+        train_curve = np.array([float(loss(torch.as_tensor(t))) for t in trajectory])
+        test_curve = np.array([float(loss.test(torch.as_tensor(t))) for t in trajectory])
     apply_h = loss.hvp_routine(theta)
     dense = loss.dense_hessian(theta)
     exact = np.linalg.eigvalsh(dense)
@@ -58,12 +64,28 @@ def make(out_dir, preview=None) -> dict:
     def certified(run):
         return sum(stage.accepted for stage in run)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.0, 4.6), layout="constrained",
-                             gridspec_kw={"width_ratios": [1.3, 1.0, 0.9]})
+    fig, axes = plt.subplots(2, 2, figsize=(12.0, 8.6), layout="constrained")
     fig.patch.set_facecolor(BACKGROUND)
+    axes = axes.ravel()
 
-    # (a) One complete run with the constant tolerance.
+    # (a) Training and test losses along gradient descent.
     axis = axes[0]
+    steps = np.arange(train_curve.size)
+    axis.plot(steps, train_curve, color=BLUE, linewidth=2.0, label="training loss")
+    axis.plot(steps, test_curve, color=ORANGE, linewidth=2.0, linestyle=DASHED, label="test loss")
+    axis.plot([steps[-1]], [train_curve[-1]], marker="o", markersize=6, color=INK, zorder=4)
+    axis.annotate("Hessian taken here", xy=(steps[-1], train_curve[-1]), xytext=(steps[-1] * 0.55, train_curve[-1] * 0.62),
+                  fontsize=9, color=INK, arrowprops=dict(arrowstyle="->", color=INK, linewidth=0.9))
+    axis.set_yscale("log")
+    axis.set_ylim(train_curve[-1] * 0.45, max(train_curve.max(), test_curve.max()) * 1.6)
+    axis.set_xlim(0, steps[-1] * 1.03)
+    axis.set_xlabel("gradient-descent step")
+    axis.set_ylabel(r"squared loss $\frac{1}{2n}\sum_i(z_i-y_i)^2$")
+    axis.set_title("(a) Training of the network", pad=8)
+    axis.legend(loc="upper right", fontsize=9)
+
+    # (b) One complete run with the constant tolerance.
+    axis = axes[1]
     example = runs_constant[0]
     colors = stage_colors(K)
     offset = 0
@@ -80,11 +102,11 @@ def make(out_dir, preview=None) -> dict:
     axis.set_xlim(0, offset * 1.01)
     axis.set_xlabel("Hessian–vector products")
     axis.set_ylabel(r"residual $\|\mathbf{A}\mathbf{q}-\widehat{\lambda}\mathbf{q}\|$")
-    axis.set_title("(a) One run, stage by stage", pad=8)
+    axis.set_title("(b) One run, stage by stage", pad=8)
     axis.legend(loc="upper center", fontsize=8.6, ncol=4, handlelength=1.4, columnspacing=0.9)
 
-    # (b) A stage that cannot be accepted with the relative tolerance.
-    axis = axes[1]
+    # (c) A stage that cannot be accepted with the relative tolerance.
+    axis = axes[2]
     stalled_run = next(run for run in runs_relative if certified(run) < K)
     stage = stalled_run[-1]
     j = len(stalled_run)
@@ -107,11 +129,11 @@ def make(out_dir, preview=None) -> dict:
     axis.set_xlim(0, 400)
     axis.set_xlabel(rf"Hessian–vector products in stage {j}")
     axis.set_ylabel("residual (log scale)")
-    axis.set_title(rf"(b) Stage {j} with the relative tolerance", pad=8)
+    axis.set_title(rf"(c) Stage {j} with the relative tolerance", pad=8)
     axis.legend(loc="upper right", fontsize=9)
 
-    # (c) Fraction of runs that certify the j largest pairs.
-    axis = axes[2]
+    # (d) Fraction of runs that certify the j largest pairs.
+    axis = axes[3]
     js = np.arange(1, K + 1)
     for runs_, color, marker, label in [(runs_constant, BLUE, "o", "constant tolerance"),
                                         (runs_relative, ORANGE, "s", "relative tolerance")]:
@@ -122,7 +144,7 @@ def make(out_dir, preview=None) -> dict:
     axis.set_xticks(js)
     axis.set_xlabel(r"number of eigenpairs $j$")
     axis.set_ylabel(rf"fraction of {N_STARTS} runs certifying $j$ pairs")
-    axis.set_title("(c) Runs that do not stall", pad=8)
+    axis.set_title("(d) Runs that do not stall", pad=8)
     axis.legend(loc="lower left", fontsize=9)
 
     finish(axes)
@@ -134,7 +156,12 @@ def make(out_dir, preview=None) -> dict:
             stalls[len(run)] = stalls.get(len(run), 0) + 1
     return {
         "parameters": dimension,
-        "train_loss": float(loss(__import__("torch").as_tensor(theta))),
+        "train_loss": train_curve[-1],
+        "test_loss": test_curve[-1],
+        "test_loss_minimum": test_curve.min(),
+        "test_loss_minimum_step": int(test_curve.argmin()),
+        "initial_train_loss": train_curve[0],
+        "initial_test_loss": test_curve[0],
         "top_eigenvalues": top,
         "negative_eigenvalues": int(np.sum(exact < 0)),
         "min_eigenvalue": exact.min(),

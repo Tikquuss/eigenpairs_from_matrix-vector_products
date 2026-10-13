@@ -79,11 +79,13 @@ class TrainingLoss:
 
 
 def teacher_student_problem(widths: Sequence[int], n: int, steps: int, learning_rate: float,
-                            seed: int, teacher_widths: Sequence[int] = None):
+                            seed: int, teacher_widths: Sequence[int] = None, n_test: int = 1024):
     """Inputs x_i ~ N(0, I), targets from a random teacher network of the same
     kind, and a student trained by full-batch gradient descent for ``steps``
     steps from a random initialization. Returns the loss and the trajectory
-    (theta after 0, 1, ..., steps steps)."""
+    (theta after 0, 1, ..., steps steps). The loss on ``n_test`` fresh inputs
+    labelled by the same teacher is attached as ``loss.test``; these inputs are
+    drawn after the initialization, so they do not change the training run."""
     generator = torch.Generator().manual_seed(seed)
     teacher = TanhNetwork(teacher_widths or widths)
     teacher_theta = teacher.initial(generator) * 2.0
@@ -92,6 +94,8 @@ def teacher_student_problem(widths: Sequence[int], n: int, steps: int, learning_
     student = TanhNetwork(widths)
     loss = TrainingLoss(student, inputs, targets)
     theta = student.initial(generator)
+    test_inputs = torch.randn((n_test, widths[0]), generator=generator)
+    loss.test = TrainingLoss(student, test_inputs, teacher(teacher_theta, test_inputs).detach())
     trajectory = [theta.numpy().copy()]
     for _ in range(steps):
         theta = theta - learning_rate * loss.gradient(theta)

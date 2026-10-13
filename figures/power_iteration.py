@@ -1,4 +1,4 @@
-"""power-iteration.svg: Proposition 1, Remarks 2, 3 and 5, and Proposition 2.
+"""power-iteration.svg: Proposition 1, Theorem 1, Remarks 2 and 5, and Proposition 2.
 
 (a) Strict dominance with a negative dominant eigenvalue of multiplicity 3.
 (b) A tie between +1 and -1: plain power iteration against squared power
@@ -22,7 +22,7 @@ N_PRODUCTS = 60
 
 
 def strict_dominance_curves(rng: np.random.Generator):
-    """Proposition 1 and Remarks 2-3 with lambda_star = -1 (multiplicity 3)."""
+    """Proposition 1, Remark 2 and Theorem 1 with lambda_star = -1 (multiplicity 3)."""
     lam_star, multiplicity, rho_2 = -1.0, 3, 0.8
     eigenvalues = np.concatenate(
         [np.full(multiplicity, lam_star), np.linspace(-rho_2, rho_2, DIMENSION - multiplicity)]
@@ -103,7 +103,7 @@ def make(out_dir, preview=None) -> dict:
     axis.plot(k[1:] + 1, np.median(bound_value, axis=0)[1:], color=ORANGE, linewidth=1.2,
               linestyle=DASHED)
     axis.plot([], [], color=GREY, linewidth=1.2, linestyle=DASHED,
-              label="bounds of Remark 3")
+              label="bounds of Theorem 1")
     axis.plot(k, np.median(raw, axis=0), linestyle="none", marker="o", markersize=2.6,
               color=GREY, label=r"raw $\|\mathbf{v}_k-\mathbf{q}_\star\|$")
     axis.set_title(r"(a) Strict dominance, $\lambda_\star=-1$, $\rho_2=0.8$", pad=8)

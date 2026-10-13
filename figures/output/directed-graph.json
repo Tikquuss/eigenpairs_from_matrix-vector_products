@@ -1,0 +1,41 @@
+{
+  "edges": 300,
+  "forward_edges": 259,
+  "other_edges": 41,
+  "other_edges_within_group": 24,
+  "in_degree_range": [
+    1,
+    10
+  ],
+  "pair": [
+    -0.393662,
+    0.704598
+  ],
+  "pair_modulus": 0.807111,
+  "pair_angle_degrees": 119.192,
+  "bulk_max_modulus": 0.444754,
+  "stationary_group_masses": [
+    0.335468,
+    0.330895,
+    0.333637
+  ],
+  "stationary_range": [
+    0.00302927,
+    0.0355217
+  ],
+  "mass_group1_steps_0_to_6": [
+    1.0,
+    0.08,
+    0.108,
+    0.6704,
+    0.21896,
+    0.210192,
+    0.51057
+  ],
+  "deviation_at_10_20_30": [
+    0.0765313,
+    0.00859379,
+    0.000929856
+  ],
+  "observed_decay_per_step_10_to_30": 0.802101
+}

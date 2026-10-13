@@ -1,6 +1,11 @@
 {
   "parameters": 369,
   "train_loss": 0.000938039,
+  "test_loss": 0.00177557,
+  "test_loss_minimum": 0.00177557,
+  "test_loss_minimum_step": 4000,
+  "initial_train_loss": 0.240292,
+  "initial_test_loss": 0.221392,
   "top_eigenvalues": [
     5.86519,
     5.27873,

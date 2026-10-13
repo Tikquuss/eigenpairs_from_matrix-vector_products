@@ -1,9 +1,10 @@
 """Matrix-free eigensolvers from the blog post
-"Eigenpairs from Matrix-Vector Products: Power Iteration, Deflation, and Lanczos"
+"Eigenpairs from Matrix-Vector Products: Power Iteration, Deflation, Lanczos, and Arnoldi"
 (https://tikquuss.github.io/blog/eigenpairs-from-matrix-vector-products/).
 
 Every solver touches the matrix only through a function ``apply_a(x)`` that
-returns ``A @ x`` for a real symmetric matrix ``A``.
+returns ``A @ x`` for a real matrix ``A``, symmetric except for the Arnoldi
+method of Section 5.
 """
 
 from .lanczos import (
@@ -14,7 +15,16 @@ from .lanczos import (
     ritz_pairs,
     tridiagonal,
 )
-from .operators import Counter, bipartite_graph, prescribed_spectrum, random_orthogonal, spiked_covariance
+from .arnoldi import arnoldi
+from .operators import (
+    Counter,
+    bipartite_graph,
+    convection_diffusion,
+    directed_community_walk,
+    prescribed_spectrum,
+    random_orthogonal,
+    spiked_covariance,
+)
 from .power import (
     Stage,
     algorithm1_stage,
@@ -26,6 +36,9 @@ from .power import (
 
 __all__ = [
     "Counter",
+    "arnoldi",
+    "convection_diffusion",
+    "directed_community_walk",
     "Stage",
     "algorithm1_stage",
     "bipartite_graph",

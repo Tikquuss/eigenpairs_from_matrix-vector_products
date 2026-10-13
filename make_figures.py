@@ -1,5 +1,5 @@
 """Reproduce the figures of the blog post
-"Eigenpairs from Matrix-Vector Products: Power Iteration, Deflation, and Lanczos".
+"Eigenpairs from Matrix-Vector Products: Power Iteration, Deflation, Lanczos, and Arnoldi".
 
     python make_figures.py                      # all figures, SVG in figures/output
     python make_figures.py --only lanczos       # one figure
@@ -17,11 +17,15 @@ from figures.common import style, write_summary
 
 FIGURES = [
     "power_iteration",
+    "bipartite_graph",
     "complete_eigenbasis",
     "residual_certificate",
     "hessian_deflation",
     "lanczos_ritz",
     "lanczos_vs_deflation",
+    "directed_graph",
+    "arnoldi_nonsymmetric",
+    "angle_diagram",
 ]
 
 

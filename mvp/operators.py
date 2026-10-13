@@ -1,4 +1,4 @@
-"""Symmetric matrices of Section 2 of the post, each known through a product routine.
+"""Matrices of Sections 2 and 5 of the post, each known through a product routine.
 
 Every constructor returns an ``apply(x)`` routine that never forms the matrix,
 and a dense copy used only as a reference for measuring errors.
@@ -79,3 +79,63 @@ def spiked_covariance(n: int, spikes: np.ndarray, dimension: int, rng: np.random
         return x.T @ (x @ v) / n
 
     return apply_c, x.T @ x / n, x
+
+
+def directed_community_walk(n: int, groups: int, forward: int, other: int, rng: np.random.Generator):
+    """Random walk on a random directed graph whose groups of nodes form a cycle.
+
+    The n nodes form ``groups`` equal groups, numbered around a cycle. Each node
+    has ``forward`` outgoing edges to distinct random nodes of the next group and
+    ``other`` outgoing edges to distinct random nodes anywhere else. The walk
+    leaves a node along one of its outgoing edges, chosen uniformly, so the
+    transition matrix is P = W / (forward + other), where W_ij = 1 when the
+    graph has the edge i -> j. P is not symmetric. The distribution p_k of the
+    walker after k steps evolves as p_{k+1} = P^T p_k, and the product P^T x is
+    one pass over the edges.
+
+    Returns the product routine x -> P^T x, the dense P (a reference only), the
+    group of every node and the edges as rows (tail, head).
+    """
+    group = np.repeat(np.arange(groups), n // groups)
+    tails, heads = [], []
+    for i in range(n):
+        targets = list(rng.choice(np.flatnonzero(group == (group[i] + 1) % groups), forward, replace=False))
+        targets += list(rng.choice(np.setdiff1d(np.arange(n), targets + [i]), other, replace=False))
+        tails += [i] * len(targets)
+        heads += targets
+    tails, heads = np.array(tails), np.array(heads)
+    degree = forward + other
+
+    def apply_pt(x: np.ndarray) -> np.ndarray:
+        return np.bincount(heads, weights=x[tails], minlength=n) / degree
+
+    dense = np.zeros((n, n))
+    dense[tails, heads] = 1.0 / degree
+    return apply_pt, dense, group, np.column_stack([tails, heads])
+
+
+def convection_diffusion(dimension: int, gamma: float):
+    """The operator u -> -u'' + c u' on [0, 1] with zero boundary values,
+    discretized by centered differences and scaled by h^2:
+    (A x)_i = -(1 + gamma) x_{i-1} + 2 x_i - (1 - gamma) x_{i+1}, gamma = c h / 2.
+
+    gamma = 0 gives the symmetric matrix of -u'' (Section 2.2). For
+    0 < gamma < 1 the matrix is nonsymmetric with the real eigenvalues
+    2 - 2 sqrt(1 - gamma^2) cos(k pi / (d + 1)), and A = S T S^{-1} with
+    S = diag(s^0, ..., s^{d-1}), s = sqrt((1 + gamma) / (1 - gamma)), and T
+    symmetric, so its eigenvector matrix S U has condition number s^{d-1}.
+    Returns the product routine, the dense matrix, the exact eigenvalues and
+    that condition number.
+    """
+    def apply_a(x: np.ndarray) -> np.ndarray:
+        y = 2.0 * x
+        y[1:] -= (1.0 + gamma) * x[:-1]
+        y[:-1] -= (1.0 - gamma) * x[1:]
+        return y
+
+    dense = (np.diag(np.full(dimension, 2.0)) + np.diag(np.full(dimension - 1, -(1.0 - gamma)), 1)
+             + np.diag(np.full(dimension - 1, -(1.0 + gamma)), -1))
+    k = np.arange(1, dimension + 1)
+    exact = 2.0 - 2.0 * np.sqrt(1.0 - gamma ** 2) * np.cos(k * np.pi / (dimension + 1))
+    condition = np.sqrt((1.0 + gamma) / (1.0 - gamma)) ** (dimension - 1)
+    return apply_a, dense, exact, condition

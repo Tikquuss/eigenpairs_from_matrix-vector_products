@@ -1,11 +1,12 @@
 # Eigenpairs from matrix–vector products
 
 Code for the blog post
-[**Eigenpairs from Matrix–Vector Products: Power Iteration, Deflation, and Lanczos**](https://tikquuss.github.io/blog/eigenpairs-from-matrix-vector-products/).
+[**Eigenpairs from Matrix–Vector Products: Power Iteration, Deflation, Lanczos, and Arnoldi**](https://tikquuss.github.io/blog/eigenpairs-from-matrix-vector-products/).
 
 The post studies what can be learned about the eigenvalues and eigenvectors of a real symmetric matrix
-**A** that is known only through the map **x** ↦ **Ax**. This repository contains small, readable
-implementations of the procedures of the post and the scripts that produce every figure in it.
+**A** that is known only through the map **x** ↦ **Ax**, and its last section treats nonsymmetric matrices
+with the Arnoldi method. This repository contains small, readable implementations of the procedures of the
+post and the scripts that produce every figure in it.
 
 ## Contents
 
@@ -13,7 +14,8 @@ implementations of the procedures of the post and the scripts that produce every
 | --- | --- |
 | `mvp/power.py` | Power iteration (Proposition 1), plain and shifted deflated power iteration (Corollary 1, Lemma 1), and Algorithm 1 (deflated squared power iteration with sign separation), with the stage loop of Corollary 2 |
 | `mvp/lanczos.py` | The Lanczos recurrence with full reorthogonalization, Ritz pairs (Lemma 4), Algorithm 2 for the pairs of largest absolute value, and continuation with new starting vectors (Proposition 4) |
-| `mvp/operators.py` | Matrices known through their products (Section 2 of the post): the adjacency matrix of a bipartite graph, a sample covariance matrix, and matrices with prescribed spectra |
+| `mvp/arnoldi.py` | The Arnoldi recurrence with full reorthogonalization (Definition 3), Ritz pairs with their inexpensive residuals (Proposition 5), and the boundary of the field of values (Remark 18) |
+| `mvp/operators.py` | Matrices known through their products (Sections 2 and 5 of the post): the adjacency matrix of a bipartite graph, a sample covariance matrix, matrices with prescribed spectra, the transition matrix of a random walk on a directed graph, and a discretized convection–diffusion operator |
 | `mvp/hessian.py` | Hessian–vector products of the training loss of a small tanh network, by automatic differentiation (PyTorch) |
 | `figures/` | One script per figure of the post |
 | `figures/output/` | The published figures (SVG) and, for each, a JSON file with the numbers quoted in its caption |
@@ -22,14 +24,18 @@ Every solver accesses the matrix only through a function `apply_a(x)` that retur
 
 ## Figures
 
-| Figure | Statement of the post | Matrix (Section 2 of the post) | Script |
-| --- | --- | --- | --- |
-| `power-iteration.svg` | Proposition 1, Remarks 2, 3 and 5, Proposition 2 | prescribed spectra, size 60 | `figures/power_iteration.py` |
-| `complete-eigenbasis.svg` | Corollary 2 | adjacency matrix of a bipartite graph | `figures/complete_eigenbasis.py` |
-| `residual-certificate.svg` | Lemma 2 and Remark 11 | sample covariance matrix (principal components) | `figures/residual_certificate.py` |
-| `hessian-deflation.svg` | Algorithm 1 | Hessian of a network training loss | `figures/hessian_deflation.py` |
-| `lanczos.svg` | Lemma 5 and Proposition 3 | prescribed spectrum with repeated eigenvalues | `figures/lanczos_ritz.py` |
-| `lanczos-vs-deflation.svg` | Algorithm 2 against Algorithm 1, Proposition 4 | network Hessian and bipartite graph | `figures/lanczos_vs_deflation.py` |
+| In the post | File | Statement of the post | Matrix (Sections 2 and 5 of the post) | Script |
+| --- | --- | --- | --- | --- |
+| Figure 1 | `power-iteration.svg` | Proposition 1, Theorem 1, Remarks 2 and 5, Proposition 2 | prescribed spectra, size 60 | `figures/power_iteration.py` |
+| Figure 2 | `bipartite-graph.svg` | the graph that Figure 3 decomposes (Corollary 2): drawing, adjacency matrix, symmetric spectrum | adjacency matrix of a bipartite graph | `figures/bipartite_graph.py` |
+| Figure 3 | `complete-eigenbasis.svg` | Corollary 2 | adjacency matrix of a bipartite graph | `figures/complete_eigenbasis.py` |
+| Figure 4 | `residual-certificate.svg` | Lemma 2 and Remark 11 | sample covariance matrix (principal components) | `figures/residual_certificate.py` |
+| Figure 5 | `hessian-deflation.svg` | Algorithm 1, with the training and test losses of the network | Hessian of a network training loss | `figures/hessian_deflation.py` |
+| Figure 6 | `lanczos.svg` | Lemma 5 and Proposition 3 | prescribed spectrum with repeated eigenvalues | `figures/lanczos_ritz.py` |
+| Figure 7 | `lanczos-vs-deflation.svg` | Algorithm 2 against Algorithm 1, Proposition 4 | network Hessian and bipartite graph | `figures/lanczos_vs_deflation.py` |
+| Figure 8 | `directed-graph.svg` | the random walk of Section 5 that Figure 9 analyzes: drawing, transition matrix, the walker's distribution, complex spectrum | transition matrix of a random walk on a directed graph | `figures/directed_graph.py` |
+| Figure 9 | `arnoldi.svg` | Proposition 5, Remark 18 and Lemma 7 (Arnoldi method), against power iteration | random walk on a directed graph, convection–diffusion operator | `figures/arnoldi_nonsymmetric.py` |
+| popover of Theorem 1 | `angle-to-eigenspace.svg` | Theorem 1 (the angle between the starting vector and the dominant eigenspace) | schematic | `figures/angle_diagram.py` |
 
 ## Reproducing the figures
 
@@ -40,7 +46,7 @@ python make_figures.py --only lanczos_ritz   # a single figure
 python make_figures.py --preview previews    # PNG copies as well
 ```
 
-All random draws are seeded, so the outputs are deterministic for a given software stack. The six
+All random draws are seeded, so the outputs are deterministic for a given software stack. The ten
 figures take about three minutes on a laptop CPU, most of it for the network Hessian.
 
 ## Using the solvers
@@ -69,6 +75,27 @@ print(np.round(values, 4), first_step[-1] + 6, residuals.max())
 Algorithm 1 uses 756 products for the six pairs, Algorithm 2 uses 44 (38 Lanczos steps and one
 explicit check per pair). The tie between each eigenvalue and its opposite, which stalls ordinary power
 iteration, is resolved by the sign separation of Algorithm 1.
+
+For a nonsymmetric matrix, the Arnoldi method returns complex Ritz values when they are needed:
+
+```python
+from mvp import arnoldi, directed_community_walk
+from mvp.arnoldi import ritz_pairs
+
+rng = np.random.default_rng(1)
+# Random walk on a directed graph whose three groups of 20 nodes form a cycle (Section 5),
+# known through products with the transpose of its transition matrix.
+apply_pt, dense_p, group, edges = directed_community_walk(60, 3, 4, 1, np.random.default_rng(0))
+hessenberg, basis = arnoldi(apply_pt, rng.standard_normal(60), 20)
+values, vectors, residuals = ritz_pairs(hessenberg, 20)
+top = np.argsort(-np.abs(values))[:3]
+print(np.round(values[top], 4), np.array2string(residuals[top], precision=1))
+# [ 1.    +0.j     -0.3937+0.7046j -0.3937-0.7046j] [1.6e-07 4.7e-06 4.7e-06]
+```
+
+The eigenvalue 1 belongs to the stationary distribution of the walk, and the complex pair to its circulation
+through the three groups; power iteration cannot separate the two members of the pair, which have the same
+modulus.
 
 ## A note on tolerances in Algorithm 1
 

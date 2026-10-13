@@ -1,0 +1,76 @@
+{
+  "walk_m5_distance_to_1": 0.252693,
+  "walk_m5_distance_to_pair": 0.256078,
+  "walk_m10_distance_to_1": 0.000607617,
+  "walk_m10_distance_to_pair": 0.000319368,
+  "walk_m20_distance_to_1": 1.10341e-08,
+  "walk_m20_distance_to_pair": 5.6684e-07,
+  "walk_m5_ritz_values": [
+    [
+      -0.225675,
+      0.51132
+    ],
+    [
+      -0.225675,
+      -0.51132
+    ],
+    [
+      0.747307,
+      0.0
+    ],
+    [
+      -0.00942072,
+      0.0814524
+    ],
+    [
+      -0.00942072,
+      -0.0814524
+    ]
+  ],
+  "walk_fov_real_range": [
+    -0.565721,
+    1.0488
+  ],
+  "walk_fov_max_imag": 0.792745,
+  "walk_eigenvector_condition": 39.7077,
+  "median_power_k10": 0.0731528,
+  "median_arnoldi_to_one_m10": 0.000189684,
+  "median_arnoldi_to_pair_m10": 0.00111089,
+  "median_power_k20": 0.001224,
+  "median_arnoldi_to_one_m20": 4.43448e-09,
+  "median_arnoldi_to_pair_m20": 4.39674e-07,
+  "median_power_k30": 9.561e-05,
+  "median_arnoldi_to_one_m30": 2.77556e-14,
+  "median_arnoldi_to_pair_m30": 1.58014e-11,
+  "median_power_k40": 1.22629e-05,
+  "median_arnoldi_to_one_m40": 1.33227e-15,
+  "median_arnoldi_to_pair_m40": 1.18018e-15,
+  "pairs_per_operator": 2325,
+  "symmetric_above_diagonal": 0,
+  "symmetric_max_ratio": 0.491398,
+  "nonsymmetric_above_diagonal": 311,
+  "nonsymmetric_max_ratio": 5.20731,
+  "nonsymmetric_bauer_fike_min_slack": 521.394,
+  "nonsymmetric_condition": 2715.06,
+  "nonsymmetric_complex_ritz_shown": {
+    "10": 0,
+    "20": 14,
+    "30": 24
+  },
+  "nonsymmetric_max_imag_shown": 0.320282,
+  "nonsymmetric_fov_max_imag": 0.398826,
+  "nonsymmetric_fov_real_range": [
+    0.0058684,
+    3.99413
+  ],
+  "eigenvalue_range": [
+    0.046158,
+    3.95384
+  ],
+  "cheap_vs_explicit_residual": 2.22045e-14,
+  "residual_range": [
+    0.00100313,
+    1.54225
+  ],
+  "distance_min": 1.59674e-06
+}
