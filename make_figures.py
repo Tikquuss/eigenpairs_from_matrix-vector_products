@@ -2,7 +2,7 @@
 "Eigenpairs from Matrix-Vector Products: Power Iteration, Deflation, Lanczos, and Arnoldi".
 
     python make_figures.py                      # all figures, SVG in figures/output
-    python make_figures.py --only lanczos       # one figure
+    python make_figures.py --only lanczos_ritz  # one figure
     python make_figures.py --preview previews   # PNG copies as well
 
 Each figure also writes a JSON file with the numbers quoted in its caption.

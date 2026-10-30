@@ -107,12 +107,13 @@ def make(out_dir, preview=None) -> dict:
     band(axis, products, power, ORANGE, r"power iteration, $|\mathbf{v}_k^\top\mathbf{P}^\top\mathbf{v}_k-1|$")
     band(axis, products, to_one, GREEN, r"Arnoldi, distance to $1$")
     band(axis, products, to_pair, GREEN, r"Arnoldi, distance to $\lambda_2$", linestyle=DASHED)
-    axis.plot(products, np.abs(pair) ** products, color=GREY, linewidth=1.1, linestyle=DOTTED,
+    # Arnoldi step m costs m products, the Rayleigh quotient of v_k costs k+1.
+    axis.plot(products, np.abs(pair) ** (products - 1), color=GREY, linewidth=1.1, linestyle=DOTTED,
               label=rf"$|\lambda_2|^k={abs(pair):.2f}^k$")
     axis.set_yscale("log")
     axis.set_ylim(FLOOR / 3, 10)
     axis.set_xlim(0, PRODUCTS + 0.5)
-    axis.set_xlabel("matrix–vector products")
+    axis.set_xlabel("matrix–vector products\n" r"($m$ for Arnoldi, $k+1$ for power iteration)")
     axis.set_ylabel("distance to the eigenvalue")
     axis.set_title("(b) Arnoldi against power iteration", pad=8)
     axis.legend(loc="lower left", fontsize=8.5, framealpha=0.95)

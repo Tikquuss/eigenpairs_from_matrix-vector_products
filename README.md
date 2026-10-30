@@ -8,6 +8,11 @@ The post studies what can be learned about the eigenvalues and eigenvectors of a
 with the Arnoldi method. This repository contains small, readable implementations of the procedures of the
 post and the scripts that produce every figure in it.
 
+The same code also lives in the repository of the site, in
+[`agent/scripts/eigenpairs-from-matrix-vector-products`](https://github.com/Tikquuss/tikquuss.github.io/tree/master/agent/scripts/eigenpairs-from-matrix-vector-products),
+where it writes the figures directly into the images of the post. That copy is the one used to build the
+post; this repository mirrors it as a standalone package.
+
 ## Contents
 
 | Path | What it contains |
@@ -30,7 +35,7 @@ Every solver accesses the matrix only through a function `apply_a(x)` that retur
 | Figure 2 | `bipartite-graph.svg` | the graph that Figure 3 decomposes (Corollary 2): drawing, adjacency matrix, symmetric spectrum | adjacency matrix of a bipartite graph | `figures/bipartite_graph.py` |
 | Figure 3 | `complete-eigenbasis.svg` | Corollary 2 | adjacency matrix of a bipartite graph | `figures/complete_eigenbasis.py` |
 | Figure 4 | `residual-certificate.svg` | Lemma 2 and Remark 11 | sample covariance matrix (principal components) | `figures/residual_certificate.py` |
-| Figure 5 | `hessian-deflation.svg` | Algorithm 1, with the training and test losses of the network | Hessian of a network training loss | `figures/hessian_deflation.py` |
+| Figure 5 | `hessian-deflation.svg` | Algorithm 1, with the training of the network and its Hessian spectrum during training and at the last step | Hessian of a network training loss | `figures/hessian_deflation.py` |
 | Figure 6 | `lanczos.svg` | Lemma 5 and Proposition 3 | prescribed spectrum with repeated eigenvalues | `figures/lanczos_ritz.py` |
 | Figure 7 | `lanczos-vs-deflation.svg` | Algorithm 2 against Algorithm 1, Proposition 4 | network Hessian and bipartite graph | `figures/lanczos_vs_deflation.py` |
 | Figure 8 | `directed-graph.svg` | the random walk of Section 5 that Figure 9 analyzes: drawing, transition matrix, the walker's distribution, complex spectrum | transition matrix of a random walk on a directed graph | `figures/directed_graph.py` |

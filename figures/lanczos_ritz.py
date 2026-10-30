@@ -100,7 +100,7 @@ def make(out_dir, preview=None) -> dict:
     axis.set_yscale("log")
     axis.set_ylim(1e-17, 10)
     axis.set_xticks(m)
-    axis.set_xlabel(r"matrix–vector products $m$")
+    axis.set_xlabel(r"matrix–vector products ($m$)")
     axis.set_ylabel(r"distance to $\lambda_{\max}(\mathbf{A})=2$")
     axis.set_title("(b) Largest eigenvalue", pad=8)
     axis.legend(loc="lower left")

@@ -13,7 +13,7 @@ import numpy as np
 
 from mvp import power_iteration, spiked_covariance
 
-from .common import BACKGROUND, BLUE, GREY, INK, ORANGE, band, finish, save, stage_colors, unit_gaussian
+from .common import BACKGROUND, BLUE, DASHED, GREY, INK, ORANGE, band, finish, save, stage_colors, unit_gaussian
 
 NAME = "residual-certificate"
 SEED = 400
@@ -53,16 +53,29 @@ def make(out_dir, preview=None) -> dict:
     axis.plot(mu, distance, color=INK, linewidth=1.4, zorder=3,
               label=r"$\min_{\lambda\in\Lambda(\mathbf{A})}|\mu-\lambda|$")
     colors = stage_colors(len(SHOWN))
+    labelled = []
     for color, k in zip(colors, SHOWN):
         q = example[:, k]
         aq = apply_c(q)
-        curve = np.sqrt(np.maximum((aq @ aq) - 2 * mu * (q @ aq) + mu**2, 0.0))
+        quotient = q @ aq
+        minimum = np.linalg.norm(aq - quotient * q)
+        curve = np.sqrt(np.maximum((aq @ aq) - 2 * mu * quotient + mu**2, 0.0))
         axis.plot(mu, curve, color=color, linewidth=1.8, zorder=4, label=rf"$k={k}$")
-        axis.plot([q @ aq], [np.linalg.norm(aq - (q @ aq) * q)], marker="o", markersize=5,
+        axis.plot([quotient], [minimum], marker="o", markersize=5,
                   color=color, markeredgecolor="white", markeredgewidth=0.8, zorder=5)
+        # The minimum projects onto the Rayleigh quotient, whose value is written
+        # under the axis; values too close to share a row are stacked.
+        axis.plot([quotient, quotient], [0, minimum], color=color, linewidth=1.0,
+                  linestyle=DASHED, zorder=4)
+        row = sum(abs(quotient - other) < 0.9 for other in labelled)
+        labelled.append(quotient)
+        axis.annotate(f"{quotient:.2f}", xy=(quotient, 0), xycoords=("data", "axes fraction"),
+                      xytext=(0, -7 - 11.5 * row), textcoords="offset points", ha="center", va="top",
+                      fontsize=9.5, color=color, fontweight="semibold")
     axis.plot(exact, np.zeros_like(exact), linestyle="none", marker="|", markersize=9,
               color=ORANGE, markeredgewidth=1.1, zorder=6, clip_on=False, label="eigenvalues")
     axis.set_xlim(0, 11)
+    axis.set_xticks([0, 2, 4, 6, 8, 10], labels=["0", "", "4", "6", "", ""])
     axis.set_ylim(0, 5.4)
     axis.set_xlabel(r"scalar $\mu$")
     axis.set_ylabel(r"$\|\mathbf{A}\mathbf{v}_k-\mu\,\mathbf{v}_k\|$")
@@ -82,7 +95,7 @@ def make(out_dir, preview=None) -> dict:
     axis.set_yscale("log")
     axis.set_ylim(3e-16, 30)
     axis.set_xlim(0, STEPS)
-    axis.set_xlabel("matrix–vector products")
+    axis.set_xlabel(r"matrix–vector products ($k+1$)")
     axis.set_ylabel("error (log scale)")
     axis.set_title("(b) Along power iteration", pad=8)
     axis.legend(loc="lower left", fontsize=9)
@@ -99,7 +112,7 @@ def make(out_dir, preview=None) -> dict:
     line = np.array([1e-16, 30])
     axis.fill_between(line, line, 30, color="#f3e1d6", linewidth=0, zorder=1)
     axis.plot(line, line, color=INK, linewidth=1.3, zorder=4)
-    axis.text(3e-14, 3e-7, "excluded by Lemma 2", rotation=0, fontsize=9.5, color=ORANGE)
+    axis.text(1e-10, 1e-4, "excluded by Lemma 2", ha="center", va="center", fontsize=9.5, color=ORANGE)
     axis.set_xscale("log")
     axis.set_yscale("log")
     axis.set_xlim(1e-16, 30)
